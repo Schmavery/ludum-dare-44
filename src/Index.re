@@ -228,7 +228,7 @@ module Items = {
       | _ => None
       },
   };
-  /* TODO: Hack for recursion? */
+  /* TODO: Hack for self-reference? */
   let device: inventoryItem = {
     kind: Device,
     label: "Swapping device",
@@ -246,9 +246,12 @@ module Items = {
       walkToMouse @@
       switchFlag(
         [
+          ("finished_game", dialog(Dialog.stillHere) @@ empty),
           (
-            "finished_game",
-            dialog(Dialog.bernardTalkToBobAfterSwap) @@ empty,
+            "swapped_back",
+            dialog(Dialog.bernardTalkToBobAfterSwap) @@
+            flag("finished_game") @@
+            empty,
           ),
           ("got_device", dialog(Dialog.bernardBeforeSwap) @@ empty),
           (
@@ -286,8 +289,8 @@ module Items = {
   device.useWith = (
     (itemKind, state) =>
       switch (itemKind) {
-      | President =>
-        Some(("swap", charDialog(Dialog.swapPresident) @@ empty))
+      | President
+      | Person => Some(("swap", charDialog(Dialog.swapPresident) @@ empty))
       | Bernard =>
         Some((
           "swap",
@@ -301,13 +304,17 @@ module Items = {
         Some((
           "swap",
           walkToMouse @@
-          swap @@
-          removeFromInventory(Device) @@
-          flag("finished_game") @@
-          removeFromRoom(Bob) @@
-          addToRoom(bernard) @@
-          dialog(Dialog.bernardSwapWithBob) @@
-          empty,
+          ifFlag(
+            "got_champagne",
+            dialog(Dialog.bernardSwapWithBob) @@
+            swap @@
+            removeFromInventory(Device) @@
+            flag("swapped_back") @@
+            removeFromRoom(Bob) @@
+            addToRoom(bernard) @@
+            empty,
+            dialog(Dialog.hurryUp) @@ empty,
+          ),
         ))
       | _ => None
       }
@@ -316,16 +323,11 @@ module Items = {
     kind: Champagne,
     label: "Champagne",
     img: "champagne_png",
-    useWith: (itemKind, state) =>
-      switch (itemKind, state.currentRoom) {
-      | (President, Lobby) =>
-        Some((
-          "give",
-          walkToMouse @@
-          dialog(Dialog.giveChampagneToPresident) @@
-          removeFromInventory(Champagne) @@
-          empty,
-        ))
+    useWith: (itemKind, _state) =>
+      switch (itemKind) {
+      | President
+      | Person
+      | Bob => Some(("give", dialog(Dialog.shouldSwapBack) @@ empty))
       | _ => None
       },
   };
@@ -374,7 +376,7 @@ let createRooms = () => {
       Items.bernard,
       {
         kind: President,
-        pos: Point.create(340., 170.),
+        pos: Point.create(350., 170.),
         width: 100.,
         height: 220.,
         actionLabel: "talk",
@@ -382,8 +384,26 @@ let createRooms = () => {
         action:
           walkToMouse @@
           ifBob(
-            dialog(Dialog.bobHiToPresident) @@ empty,
+            ifFlag(
+              "finished_game",
+              dialog(Dialog.presidentBye) @@ empty,
+              dialog(Dialog.bobHiToPresident) @@ empty,
+            ),
             dialog(Dialog.bernardHiToPresident) @@ empty,
+          ),
+      },
+      {
+        kind: Person,
+        pos: Point.create(220., 170.),
+        width: 100.,
+        height: 220.,
+        actionLabel: "talk",
+        img: Some("lady_full_body"),
+        action:
+          walkToMouse @@
+          ifBob(
+            dialog(Dialog.bobHiToLady) @@ empty,
+            dialog(Dialog.bernardHiToLady) @@ empty,
           ),
       },
       /* TODO: Fix for bernard */

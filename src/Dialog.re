@@ -24,6 +24,7 @@ module People = {
   let boss = ("Boss", "boss_head");
   let bob = ("Bob", "dude");
   let bernard = ("Bernard", "dude_two_png");
+  let lady = ("Cindy", "lady");
 };
 open Helpers;
 
@@ -262,9 +263,7 @@ module Cellar = {
     player(People.bernard, "My mom really likes this Pinot Grigio!"),
   ];
 
-  let bottle6 = [
-    player(People.bernard, "A ... huge case of tequila?"),
-  ];
+  let bottle6 = [player(People.bernard, "A ... huge case of tequila?")];
 
   let bottle7 = [player(People.bernard, "That's just grape juice.")];
 
@@ -300,18 +299,55 @@ module Cellar = {
     ),
   ];
 };
-let bernardTalkToLady = [
-  npc'(
-    People.bernard,
-    ["No, Bernard, for the tenth time,", "I will not go on a date with you."],
-  ),
+
+let bobHiToLady = [
+  npc'(People.lady, ["Sorry, I can't talk.", "I'm too busy celebrating."]),
+  player(People.bob, "Busy celebrating?"),
+  npc(People.lady, "Can't talk."),
 ];
 
+let bernardHiToLady = {
+  let lady = npc(People.lady);
+  let lady' = npc'(People.lady);
+  let you = player(People.bernard);
+  [
+    lady("Oh, Bernard!"),
+    lady("I've been looking for you!"),
+    you("...You have?"),
+    lady'([
+      "Yes, I asked you to get that report",
+      "on my desk by last Friday",
+      "and I haven't seen anything.",
+    ]),
+    you("..."),
+    lady("What's the status of that?"),
+    you("Coming right up?"),
+  ];
+};
+
 let shouldSwapBack = [
-  player(People.bernard, "I should probably swap back, first."),
+  player(People.bernard, "I should probably swap back first."),
 ];
 
 let swapPresident = char => [player(char, "That seems pretty risky.")];
+
+let stillHere = [npc(People.bernard, "You're still here?")];
+
+let presidentBye = {
+  let bob = player(People.bob);
+  let president = npc(People.president);
+  let president' = npc'(People.president);
+  [
+    president("Hi Bob. Thanks for all your help today."),
+    bob("Anytime, Mr. President!"),
+    president'([
+      "I'm sorry we couldn't make more use",
+      "of all your talents.",
+    ]),
+    president("We just ran out of time in the end!"),
+    president("Maybe next time!"),
+  ];
+};
 
 let hurryUp = [
   npc'(People.bob, ["What are you waiting for?", "Head to the cellar!"]),
@@ -324,7 +360,7 @@ let bernardSwapWithBob = [
   ),
   npc'(People.bob, ["Absolutely!", "What do you think of my new tattoo?"]),
   player(People.bernard, "..."),
-  player(People.bernard, "Id like my body back, now."),
+  player(People.bernard, "I'd like my body back, now."),
   npc(People.bob, "Alright, alright."),
 ];
 
@@ -347,7 +383,7 @@ let bernardTalkToBobBeforeSwap = [
   ),
   player(People.bernard, "..."),
   npc(People.bob, "You dont like it?"),
-  player(People.bernard, "No, no, its ... really something."),
+  player(People.bernard, "No, no, it's ... really something."),
   npc(People.bob, "Thanks! I thought you might like it!"),
   player(People.bernard, "Can we swap back, now?"),
   npc(People.bob, "Of course, of course."),
@@ -361,7 +397,7 @@ let bernardTalkToBobAfterSwap = [
     ["I'm just a phone call away", "next time you need anything!"],
   ),
   npc(People.bernard, "Mhm."),
-  player(People.bob, "Heres my card in case you ..."),
-  npc(People.bernard, "Well call you if we need you."),
+  player(People.bob, "Here's my card in case you ..."),
+  npc(People.bernard, "We'll call you if we need you."),
   player(People.bob, "Bye!"),
 ];

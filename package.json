@@ -6,9 +6,11 @@
     "build": "bsb -make-world",
     "build:web": "bsb -make-world -backend js",
     "build:native": "bsb -make-world -backend native",
-    "clean": "bsb -clean-world"
+    "clean": "bsb -clean-world",
+    "pack": "fpack build ./lib/js/src/index.js -o build --development && cp ./build/index.js ./index.js"
   },
   "dependencies": {
+    "fpack": "^0.6.8",
     "reprocessing": "^0.3.0",
     "rex-json": "^1.4.0"
   },
