@@ -64,6 +64,7 @@ let actionLabel = (actionName, pos, font, env) => {
 
 let placeholderUncentered = (name, ~pos, ~width, ~height, env) => {
   Draw.fill(Constants.red, env);
+  Draw.noStroke(env);
   Draw.rectf(~pos=Point.(toPair(pos)), ~width, ~height, env);
   Draw.text(
     ~body=name,
@@ -73,44 +74,63 @@ let placeholderUncentered = (name, ~pos, ~width, ~height, env) => {
 };
 
 let sprite = (t, name, ~pos, ~flipped=false, ~scale=1.0, env) => {
-  Reprocessing.(
-    switch (StringMap.find(name, t.Sprite.map)) {
-    | {x, y, w, h} =>
-      let width = float_of_int(w) *. scale *. (flipped ? (-1.) : 1.);
-      let height = float_of_int(h) *. scale;
-      Draw.subImagef(
-        t.sheet,
-        ~pos=Point.(toPair(pos - create(width /. 2., height /. 2.))),
-        ~width,
-        ~height,
-        ~texPos=(x, y),
-        ~texWidth=w,
-        ~texHeight=h,
-        env,
-      );
-    | exception Not_found =>
-      placeholderUncentered(
-        name,
-        ~pos=Point.(pos - create(50., 50.)),
-        ~width=50.,
-        ~height=50.,
-        env,
-      )
-    }
-  );
+  switch (StringMap.find(name, t.Sprite.map)) {
+  | {x, y, w, h} =>
+    let width = float_of_int(w) *. scale *. (flipped ? (-1.) : 1.);
+    let height = float_of_int(h) *. scale;
+    Draw.subImagef(
+      t.sheet,
+      ~pos=Point.(toPair(pos - create(width /. 2., height /. 2.))),
+      ~width,
+      ~height,
+      ~texPos=(x, y),
+      ~texWidth=w,
+      ~texHeight=h,
+      env,
+    );
+  | exception Not_found =>
+    placeholderUncentered(
+      name,
+      ~pos=Point.(pos - create(50., 50.)),
+      ~width=100.,
+      ~height=100.,
+      env,
+    )
+  };
+};
+
+let spriteUncentered = (t, name, ~pos, ~flipped=false, ~scale=1.0, env) => {
+  switch (StringMap.find(name, t.Sprite.map)) {
+  | {x, y, w, h} =>
+    let width = float_of_int(w) *. scale *. (flipped ? (-1.) : 1.);
+    let height = float_of_int(h) *. scale;
+    Draw.subImagef(
+      t.sheet,
+      ~pos=Point.(toPair(pos)),
+      ~width,
+      ~height,
+      ~texPos=(x, y),
+      ~texWidth=w,
+      ~texHeight=h,
+      env,
+    );
+  | exception Not_found =>
+    placeholderUncentered(name, ~pos, ~width=100., ~height=100., env)
+  };
 };
 
 module Dialog = {
   let height = 150.;
   let padding = 40.;
   let windowFix = 10.;
+  let bottomBuffer = 20.;
 
   let box = env => {
     niceRect(
       ~pos=
         Point.create(
           padding,
-          float_of_int(Env.height(env)) -. height -. padding -. windowFix,
+          float_of_int(Env.height(env)) -. height -. padding -. windowFix -. bottomBuffer,
         ),
       ~color=Utils.color(~r=100, ~g=100, ~b=255, ~a=255),
       ~height,
@@ -120,8 +140,8 @@ module Dialog = {
   };
 
   let face = (~x, assetName, label, sprites, font, env) => {
-    let top = float_of_int(Env.height(env)) -. height +. 10.;
-    sprite(sprites, assetName, ~scale=0.3, ~pos=Point.create(x, top), env);
+    let top = float_of_int(Env.height(env)) -. height +. 10. -. bottomBuffer;
+    sprite(sprites, assetName, ~scale=0.6, ~pos=Point.create(x, top), env);
     let tw = Draw.textWidth(~body=label, ~font, env) / 2;
     Draw.text(
       ~body=label,
@@ -140,7 +160,7 @@ module Dialog = {
       +. height
       /. 2.
       -. float_of_int(List.length(content))
-      *. (lineHeight /. 2.);
+      *. (lineHeight /. 2.) -. bottomBuffer;
     let numChars =
       if (percentScrolled >= 1.0) {
         10000;
@@ -175,7 +195,7 @@ module Dialog = {
   };
 
   let next = (time, font, env) => {
-    let top = Env.height(env) - int_of_float(padding -. windowFix) - 15;
+    let top = Env.height(env) - int_of_float(padding +. windowFix +. bottomBuffer -. 5.);
     Draw.pushStyle(env);
     Draw.tint({...Constants.white, a: min(1.0, time /. 1.0)}, env);
     Draw.text(
