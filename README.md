@@ -1,6 +1,8 @@
 A Little Case of Presidential Disappearance
 ---
-This is a game made for Ludum Dare 44. The theme was "Your life is currency". 
+This is a game made for Ludum Dare 44. The theme was "Your life is currency".
+
+https://ldjam.com/events/ludum-dare/44/a-little-case-of-presidential-disappearance
 
 Play now!
 ---
