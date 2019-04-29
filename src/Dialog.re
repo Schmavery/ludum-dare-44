@@ -222,6 +222,8 @@ let cellarDoorNo = [
     People.bob,
     ["Only government employees are allowed", "down to the cellar."],
   ),
+  player(People.bob, "Bernard didn't warn me about this!"),
+  player(People.bob, "I should go ask him about it."),
 ];
 
 let paintingDoor = char => [
@@ -353,18 +355,21 @@ let hurryUp = [
   npc'(People.bob, ["What are you waiting for?", "Head to the cellar!"]),
 ];
 
-let bernardSwapWithBob = [
+let bernardSwapBackDidntTalkAboutTattoo = [
   player'(
     People.bernard,
     ["I've secured the champagne!", "Ready to swap back?"],
   ),
   npc'(People.bob, ["Absolutely!", "What do you think of my new tattoo?"]),
   player(People.bernard, "..."),
+  npc(People.bob, "You dont like it?"),
+  player(People.bernard, "No, no, it's ... really something."),
+  npc(People.bob, "Thanks! I thought you might like it!"),
   player(People.bernard, "I'd like my body back, now."),
   npc(People.bob, "Alright, alright."),
 ];
 
-let bernardTalkToBobBeforeSwap = [
+let bernardTalkBeforeSwapBack = [
   npc'(
     People.bob,
     ["Great! You found the champagne!", "Ready to swap back?"],
@@ -389,7 +394,8 @@ let bernardTalkToBobBeforeSwap = [
   npc(People.bob, "Of course, of course."),
 ];
 
-let bernardTalkToBobAfterSwap = [
+let bernardAfterSwap = [
+  npc(People.bernard, "Great, thanks for swapping back."),
   npc(People.bernard, "*hands you a glass of champagne*"),
   npc(People.bernard, "Thanks for getting that for me!"),
   player'(

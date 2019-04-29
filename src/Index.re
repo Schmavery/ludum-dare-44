@@ -248,12 +248,11 @@ module Items = {
         [
           ("finished_game", dialog(Dialog.stillHere) @@ empty),
           (
-            "swapped_back",
-            dialog(Dialog.bernardTalkToBobAfterSwap) @@
-            flag("finished_game") @@
+            "got_device",
+            dialog(Dialog.bernardBeforeSwap) @@
+            flag("talked_about_tattoo") @@
             empty,
           ),
-          ("got_device", dialog(Dialog.bernardBeforeSwap) @@ empty),
           (
             "tried_cellar",
             dialog(Dialog.bernardSwapExplanation1) @@
@@ -281,7 +280,8 @@ module Items = {
         walkToMouse @@
         ifFlag(
           "got_champagne",
-          dialog(Dialog.bernardTalkToBobBeforeSwap) @@ empty,
+          dialog(Dialog.bernardTalkBeforeSwapBack) @@ empty,
+          flag("talked_about_tattoo") @@
           dialog(Dialog.hurryUp) @@ empty,
         )
       ),
@@ -301,19 +301,40 @@ module Items = {
           empty,
         ))
       | Bob =>
+        /* ( */
+        /*   "talked_about_tattoo", */
+        /*   dialog(Dialog.bernardTalkToBobAfterSwap) @@ */
+        /*   flag("finished_game") @@ */
+        /*   empty, */
+        /* ), */
         Some((
           "swap",
           walkToMouse @@
-          ifFlag(
-            "got_champagne",
-            dialog(Dialog.bernardSwapWithBob) @@
-            swap @@
-            removeFromInventory(Device) @@
-            flag("swapped_back") @@
-            removeFromRoom(Bob) @@
-            addToRoom(bernard) @@
-            empty,
-            dialog(Dialog.hurryUp) @@ empty,
+          switchFlag(
+            [
+              (
+                "talked_about_tattoo",
+                swap @@
+                removeFromRoom(Bob) @@
+                addToRoom(bernard) @@
+                dialog(Dialog.bernardAfterSwap) @@
+                removeFromInventory(Device) @@
+                flag("finished_game") @@
+                empty,
+              ),
+              (
+                "got_champagne",
+                dialog(Dialog.bernardSwapBackDidntTalkAboutTattoo) @@
+                swap @@
+                removeFromRoom(Bob) @@
+                addToRoom(bernard) @@
+                dialog(Dialog.bernardAfterSwap) @@
+                removeFromInventory(Device) @@
+                flag("finished_game") @@
+                empty,
+              ),
+            ],
+            ~default=dialog(Dialog.hurryUp) @@ empty,
           ),
         ))
       | _ => None
