@@ -287,7 +287,7 @@ module Items = {
       ),
   };
   device.useWith = (
-    (itemKind, state) =>
+    (itemKind, _state) =>
       switch (itemKind) {
       | President
       | Person => Some(("swap", charDialog(Dialog.swapPresident) @@ empty))
@@ -422,7 +422,7 @@ let createRooms = () => {
           ),
       },
       {
-        kind: Door,
+        kind: Other,
         pos: Point.create(600., 100.),
         width: 130.,
         height: 240.,
@@ -676,6 +676,13 @@ let handleWorldMouse = (state, env) => {
 };
 
 let draw = (state, env) => {
+  let state = {
+    ...state,
+    mouse: {
+      ...state.mouse,
+      pos: Point.fromIntPair(Env.mouse(env)),
+    },
+  };
   let state =
     if (Env.keyPressed(R, env)) {
       {...state, rooms: createRooms()};
@@ -880,7 +887,7 @@ let draw = (state, env) => {
       switch (hoveringInventoryItem(state.mouse.pos, 0, state.inventory)) {
       | Some(item) =>
         DrawStuff.actionLabel(item.label, state.mouse.pos, state.font, env);
-        state.mouse.up ? {...state, holding: Some(item)} : state;
+        state.mouse.down ? {...state, holding: Some(item)} : state;
       | None => state
       }
     | (_, [{assetName, label, character: Player, content}, ...tl]) =>
@@ -975,15 +982,7 @@ let mouseUp = (state, _) => {
   },
 };
 
-let mouseMove = (state, env) => {
-  ...state,
-  mouse: {
-    ...state.mouse,
-    pos: Point.fromIntPair(Env.mouse(env)),
-  },
-};
-
 /* let basedirname = Filename.dirname(Sys.argv[0]) ++ "/"; */
 Assets.loadSpriteSheet("assets/spritesheet/sprites.json", assets =>
-  run(~setup=setup(assets), ~draw, ~mouseDown, ~mouseUp, ~mouseMove, ())
+  run(~setup=setup(assets), ~draw, ~mouseDown, ~mouseUp, ())
 );
